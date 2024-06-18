@@ -78,5 +78,64 @@ public class DatabaseSeeder
             _context.Patients.AddRange(patients);
             _context.SaveChanges();
         }
+
+        if (!_context.Vaccines.Any())
+        {
+            var faker = new Faker<Vaccine>()
+                .RuleFor(v => v.Name, f => f.Name.FullName());
+
+            var vaccines = faker.Generate(10);
+            _context.Vaccines.AddRange(vaccines);
+            _context.SaveChanges();
+        }
+
+        if (!_context.VaccineBrands.Any())
+        {
+            var vaccines = _context.Vaccines.ToList();
+
+            var faker = new Faker<VaccineBrand>()
+                .RuleFor(v => v.BrandName, f => f.Name.FirstName())
+                .RuleFor(v => v.VaccineId, f => f.PickRandom(vaccines).Id);
+
+            var vaccineBrands = faker.Generate(10);
+            _context.VaccineBrands.AddRange(vaccineBrands);
+            _context.SaveChanges();
+        }
+
+        if (!_context.Vaccinations.Any())
+        {
+            var patients = _context.Patients.ToList();
+            var hospitals = _context.Hospitals.ToList();
+            var vaccineBrands = _context.VaccineBrands.ToList();
+
+            var faker = new Faker<Vaccination>()
+                .RuleFor(v => v.PatientId, f => f.PickRandom(patients).Id)
+                .RuleFor(v => v.HospitalId, f => f.PickRandom(hospitals).Id)
+                .RuleFor(v => v.VaccineBrandId, f => f.PickRandom(vaccineBrands).Id)
+                .RuleFor(v => v.DateOfVaccination,
+                    f => f.Date.BetweenDateOnly(new DateOnly(2020, 01, 01), new DateOnly(2024, 12, 31)));
+
+            var vaccinations = faker.Generate(60);
+            _context.Vaccinations.AddRange(vaccinations);
+            _context.SaveChanges();
+        }
+
+        if (!_context.MedicalRecords.Any())
+        {
+            var patients = _context.Patients.ToList();
+            var admins = _context.Admins.ToList();
+
+            var faker = new Faker<MedicalRecord>()
+                .RuleFor(m => m.PatientId, f => f.PickRandom(patients).Id)
+                .RuleFor(m => m.AdminId, f => f.PickRandom(admins).Id)
+                .RuleFor(m => m.RecordType, f => f.Name.FirstName())
+                .RuleFor(m => m.Date,
+                    f => f.Date.BetweenDateOnly(new DateOnly(2020, 01, 01), new DateOnly(2024, 12, 31)))
+                .RuleFor(m => m.FilePath, f => f.Image.PicsumUrl(50, 50));
+
+            var medicalRecords = faker.Generate(60);
+            _context.MedicalRecords.AddRange(medicalRecords);
+            _context.SaveChanges();
+        }
     }
 }
