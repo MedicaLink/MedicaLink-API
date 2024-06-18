@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
+    /**
+     * Refer to this controller when you have trouble making role based authenticated routes
+     */
     [Route("api/[Controller]")]
     public class TestController : ControllerBase
     {
