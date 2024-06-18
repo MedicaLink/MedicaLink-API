@@ -3,7 +3,6 @@ using API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -47,8 +46,8 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireClaim("Role", "Admin"));
-    options.AddPolicy("PatientOnly", policy => policy.RequireClaim("Role", "Patient"));
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
 });
 
 builder.Services.AddSwaggerGen(c =>
