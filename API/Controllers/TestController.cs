@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Route("api/[Controller]")]
-    public class PatientController : ControllerBase
+    public class TestController : ControllerBase
     {
         ApplicationDbContext _context;
 
-        public PatientController(ApplicationDbContext context)
+        public TestController(ApplicationDbContext context)
         {
             _context = context;
         }
