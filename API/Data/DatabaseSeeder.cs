@@ -115,7 +115,8 @@ public class DatabaseSeeder
                 .RuleFor(v => v.HospitalId, f => f.PickRandom(hospitals).Id)
                 .RuleFor(v => v.VaccineBrandId, f => f.PickRandom(vaccineBrands).Id)
                 .RuleFor(v => v.DateOfVaccination,
-                    f => f.Date.BetweenDateOnly(new DateOnly(2020, 01, 01), new DateOnly(2024, 12, 31)));
+                    f => f.Date.BetweenDateOnly(new DateOnly(2020, 01, 01), new DateOnly(2024, 12, 31)))
+                .RuleFor(v => v.Dose, f => f.Name.Suffix());
 
             var vaccinations = faker.Generate(60);
             _context.Vaccinations.AddRange(vaccinations);
