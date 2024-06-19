@@ -52,7 +52,10 @@ namespace API.Controllers
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(JWTToken),
-                expiration = JWTToken.ValidTo
+                expiration = JWTToken.ValidTo,
+                userId = userId,
+                userName = loginModel.UserName,
+                role = userRole,
             });
         }
 

@@ -11,6 +11,15 @@ public class ApplicationDbContext : DbContext
 
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Patient>(patient =>
+        {
+            patient.Property(p => p.RegisteredDate)
+                .HasDefaultValue(DateTime.Now);
+        });
+    }
+
     public DbSet<Hospital> Hospitals { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Patient> Patients { get; set; }

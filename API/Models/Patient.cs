@@ -1,4 +1,6 @@
-﻿namespace API.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace API.Models;
 
 public class Patient
 {
@@ -24,7 +26,14 @@ public class Patient
 
     public string? Password { get; set; }
 
+    public string? ProfileImage {  get; set; }
+
+    public DateTime RegisteredDate { get; set; }
+
+    [ForeignKey(nameof(Admin))]
     public int RegisteredBy { get; set; }
+
+    public Admin? Admin { get; set; }
 
     public List<Vaccination> Vaccinations { get; set; } = [];
 

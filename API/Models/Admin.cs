@@ -16,7 +16,6 @@ public class Admin
 
     public string? Password { get; set; }
 
-    [ForeignKey("HospitalId")]
     public int HospitalId { get; set; }
 
     public Hospital? Hospital { get; set; }

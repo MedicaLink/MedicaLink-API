@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -15,11 +16,25 @@ namespace API.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var patients = _context.Patients;
+            var patients = await _context.Patients.Include( p => p.Admin)
+                .ToListAsync();
 
             return Ok(patients);
         }
+
+        [Route("latest")]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Latest()
+        {
+            var patients = await _context.Patients.
+                OrderBy(p => p.RegisteredDate)
+                .Take(5)
+                .ToListAsync();
+
+            return Ok();
+        }
     }
+
 }

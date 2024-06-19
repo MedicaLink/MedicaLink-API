@@ -24,6 +24,17 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
 builder.Services.AddScoped<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins",
+        builder => builder
+            .WithOrigins("http://localhost:5173") // Add your frontend origin here
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()); // Add AllowCredentials if you need to send cookies or other credentials
+});
+
 // Configure authorization
 builder.Services.AddAuthentication(options =>
 {
@@ -105,6 +116,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+// Use CORS middleware
+app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthentication(); // This must come before UseAuthorization
 app.UseAuthorization();
