@@ -8,6 +8,16 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
+
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Patient>(patient =>
+        {
+            patient.Property(p => p.RegisteredDate)
+                .HasDefaultValue(DateTime.Now);
+        });
     }
 
     public DbSet<Hospital> Hospitals { get; set; }
