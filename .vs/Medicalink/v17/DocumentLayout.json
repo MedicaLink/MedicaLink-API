@@ -1,0 +1,71 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\DatabaseSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:API\\Data\\DatabaseSeeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:API\\Data\\ApplicationDbContext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Models\\Patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:API\\Models\\Patient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "API\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "API\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-17T13:42:08.978Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "DatabaseSeeder.cs",
+              "DocumentMoniker": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\DatabaseSeeder.cs",
+              "RelativeDocumentMoniker": "API\\Data\\DatabaseSeeder.cs",
+              "ToolTip": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Data\\DatabaseSeeder.cs",
+              "RelativeToolTip": "API\\Data\\DatabaseSeeder.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-17T13:40:56.807Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Patient.cs",
+              "DocumentMoniker": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Models\\Patient.cs",
+              "RelativeDocumentMoniker": "API\\Models\\Patient.cs",
+              "ToolTip": "D:\\Projects\\Web\\MedicaLink - InfoSchol 2024\\Backend\\ASP\\Medicalink\\API\\Models\\Patient.cs",
+              "RelativeToolTip": "API\\Models\\Patient.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-17T13:31:25.201Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
