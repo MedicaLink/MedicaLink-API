@@ -62,7 +62,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
 });
 
-builder.Services.AddSwaggerGen(c =>
+/*builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "MedicaLinkAPI", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -88,12 +88,9 @@ builder.Services.AddSwaggerGen(c =>
             Array.Empty<string>()
         }
     });
-});
+});*/
 
-builder.Services.AddControllers().AddJsonOptions(x =>
-    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve);
-
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -111,9 +108,9 @@ using (var scope = app.Services.CreateScope())
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    /*app.UseDeveloperExceptionPage();
     app.UseSwagger();
-    // app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MedicaLinkAPI v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MedicaLinkAPI v1"));*/
 }
 
 app.UseHttpsRedirection();

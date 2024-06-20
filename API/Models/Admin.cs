@@ -16,9 +16,10 @@ public class Admin
 
     public string? Password { get; set; }
 
+    [ForeignKey(nameof(Hospital))]
     public int HospitalId { get; set; }
 
-    public Hospital? Hospital { get; set; }
+    public Hospital Hospital { get; set; }
 
     public List<MedicalRecord> MedicalRecords { get; set; } = [];
 }
