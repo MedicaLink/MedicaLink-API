@@ -58,15 +58,47 @@ namespace API.Controllers
         }
 
         [Route("latest")]
-        [Authorize(Policy = "AdminOnly")]
+        /*[Authorize(Policy = "AdminOnly")]*/
         public async Task<IActionResult> Latest()
         {
-            var patients = await _context.Patients.
-                OrderBy(p => p.RegisteredDate)
+            var patients = await _context.Patients
+                .Include(p => p.Admin)
+                .ThenInclude(a => a.Hospital)
+                .OrderBy(p => p.RegisteredDate)
                 .Take(5)
                 .ToListAsync();
 
-            return Ok();
+            var results = new List<Object>();
+
+            patients.ForEach(p =>
+            {
+                var result = new
+                {
+                    p.Id,
+                    p.Name,
+                    Age = p.getAge(),
+                    p.Nic,
+                    p.BloodGroup,
+                    p.DateOfBirth,
+                    p.Gender,
+                    p.Height,
+                    p.Weight,
+                    p.RegisteredDate,
+                    p.ProfileImage,
+                    Admin = new
+                    {
+                        p.Admin.Name,
+                        Hospital = new
+                        {
+                            p.Admin.Hospital.Name,
+                        }
+                    }
+                };
+
+                results.Add(result);
+            });
+
+            return Ok(results);
         }
 
         [Route("search")]

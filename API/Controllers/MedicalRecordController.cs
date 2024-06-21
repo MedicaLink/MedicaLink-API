@@ -3,6 +3,7 @@ using API.Models.FormModels;
 using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers
 {
@@ -66,20 +67,24 @@ namespace API.Controllers
             string searchQuery = model.Query;
             string searchType = model.Type;
 
-            IQueryable<MedicalRecord> query = _context.MedicalRecords;
+            IQueryable<MedicalRecord> query = _context.MedicalRecords.Where(m => m.PatientId == patientId);
 
-            if(searchType == "Location")
+            if (!searchQuery.IsNullOrEmpty())
             {
-                query = query.Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
-            }
-            else if(searchType == "All")
-            {
-                query = query.
-                    Where(m => EF.Functions.Like(m.RecordType, searchQuery) || EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
-            }
-            else{
-                query = query.
-                    Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
+                if (searchType == "Location")
+                {
+                    query = query.Where(m => EF.Functions.Like(m.Admin.Hospital.Name, $"%{searchQuery}%"));
+                }
+                else if (searchType == "All")
+                {
+                    query = query.
+                        Where(m => EF.Functions.Like(m.RecordType, $"%{searchQuery}%") || EF.Functions.Like(m.Admin.Hospital.Name, $"%{searchQuery}%"));
+                }
+                else
+                {
+                    query = query.
+                        Where(m => EF.Functions.Like(m.RecordType, $"%{searchQuery}%"));
+                }
             }
             
             var medicalRecords = await query
@@ -87,13 +92,14 @@ namespace API.Controllers
                 .ThenInclude(a => a.Hospital)
                 .ToListAsync();
 
-            var results = new List<Object>();
+            int adminHospitalId = 1; // This should be retireved from the JWT
 
+            var results = new List<Object>();
             medicalRecords.ForEach(m =>
             {
                 var result = new
                 {
-                    m.Id, m.FilePath, m.Date, m.Description,
+                    m.Id, m.RecordType, m.FilePath, m.Date, m.Description,
                     Admin = new
                     {
                         m.Admin.Id,
@@ -103,7 +109,8 @@ namespace API.Controllers
                             m.Admin.Hospital.Id,
                             m.Admin.Hospital.Name,
                         }
-                    }
+                    },
+                    IsEditable = m.Admin.Hospital.Id == adminHospitalId // Check wether the user can edit the record
                 };
 
                 results.Add(result);

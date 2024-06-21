@@ -103,8 +103,9 @@ public class VaccinationsController : Controller
             .OrderByDescending(v => v.DateOfVaccination)
             .ToListAsync();
 
-        var results = new List<Object>();
+        int adminHospitalId = 1; // This should be retireved from the JWT
 
+        var results = new List<Object>();
         vaccinations.ForEach(v =>
         {
             var result = new
@@ -126,7 +127,8 @@ public class VaccinationsController : Controller
                 {
                     v.Hospital.Id,
                     v.Hospital.Name
-                }
+                },
+                IsEditable = v.Hospital.Id == adminHospitalId // Check wether the user can edit the record
             };
 
             results.Add(result);
