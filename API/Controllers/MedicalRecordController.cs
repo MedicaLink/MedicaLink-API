@@ -17,6 +17,7 @@ namespace API.Controllers
             _context = context;
         }
 
+        // GET: api/MedicalRecord
         public async Task<IActionResult> Index([FromQuery] MedicalRecordModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -58,6 +59,7 @@ namespace API.Controllers
             return Ok(results);
         }
 
+        // GET: api/MedicalRecord/search
         [Route("search")]
         public async Task<IActionResult> Search([FromQuery] MedicalRecordSearchModel model)
         {
@@ -117,6 +119,76 @@ namespace API.Controllers
             });
 
             return Ok(results);
+        }
+
+        // POST: api/MedicalRecord
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] MedicalRecordsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var medicalRecord = new MedicalRecord
+            {
+                PatientId = model.PatientId,
+                AdminId = model.AdminId,
+                RecordType = model.RecordType,
+                Description = model.Description,
+                Date = model.Date,
+                FilePath = model.FilePath
+            };
+
+            _context.MedicalRecords.Add(medicalRecord);
+            await _context.SaveChangesAsync();
+
+            return Ok(medicalRecord);
+        }
+
+        // PUT: api/MedicalRecord/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] MedicalRecordsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingRecord = await _context.MedicalRecords.FindAsync(id);
+
+            if (existingRecord == null)
+            {
+                return NotFound();
+            }
+
+            existingRecord.PatientId = model.PatientId;
+            existingRecord.AdminId = model.AdminId;
+            existingRecord.RecordType = model.RecordType;
+            existingRecord.Description = model.Description;
+            existingRecord.Date = model.Date;
+            existingRecord.FilePath = model.FilePath;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(existingRecord);
+        }
+
+        // DELETE: api/MedicalRecord/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var medicalRecord = await _context.MedicalRecords.FindAsync(id);
+
+            if (medicalRecord == null)
+            {
+                return NotFound();
+            }
+
+            _context.MedicalRecords.Remove(medicalRecord);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
