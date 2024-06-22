@@ -16,7 +16,7 @@ public class MedicalRecordsController : Controller
         _context = context;
     }
     
-    // POST: api/MedicalRecords
+    // Create a new medical record - POST: api/MedicalRecords
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] MedicalRecordsModel model)
     {
@@ -41,25 +41,50 @@ public class MedicalRecordsController : Controller
         return Ok(medicalRecord);
     }
     
-    // GET: api/MedicalRecords
+    // List all medical records - GET: api/MedicalRecords
     [HttpGet]
-    public async Task<IActionResult> Index([FromQuery] MedicalRecordsModel model)
+    public async Task<IActionResult> Index([FromQuery] MedicalRecordModel model)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest();
-        }
-        
-        var patientId = model.PatientId;
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        int patientId = model.PatientId;
 
         var medicalRecords = await _context.MedicalRecords
             .Where(m => m.PatientId == patientId)
+            .Include(m => m.Admin)
+            .ThenInclude(a => a.Hospital)
+            .OrderByDescending(m => m.Date)
+            .Take(6)
             .ToListAsync();
-            
-        return Ok(medicalRecords);
+
+        var results = new List<Object>();
+
+        medicalRecords.ForEach(m =>
+        {
+            var result = new
+            {
+                m.Id,
+                m.RecordType, m.Description,
+                m.Date, m.FilePath,
+                Admin = new
+                {
+                    m.Admin.Id,
+                    m.Admin.Name,
+                    Hospital = new
+                    {
+                        m.Admin.Hospital.Id,
+                        m.Admin.Name,
+                    }
+                }
+            };
+
+            results.Add(result);
+        });
+
+        return Ok(results);
     }
     
-    // PUT: api/MedicalRecords/{id}
+    // Update a medical record - PUT: api/MedicalRecords/{id}
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] MedicalRecordsModel model)
     {
@@ -87,7 +112,7 @@ public class MedicalRecordsController : Controller
         return Ok(existingRecord);
     }
 
-    // DELETE: api/MedicalRecords/{id}
+    // Delete a medical record - DELETE: api/MedicalRecords/{id}
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -102,5 +127,61 @@ public class MedicalRecordsController : Controller
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+    
+    // Search for a medical record - GET: api/MedicalRecords/search
+    [Route("search")]
+    public async Task<IActionResult> Search([FromQuery] MedicalRecordSearchModel model)
+    {
+        if(!ModelState.IsValid) return BadRequest(model);
+
+        int patientId = model.PatientId;
+        string searchQuery = model.Query;
+        string searchType = model.Type;
+
+        IQueryable<MedicalRecord> query = _context.MedicalRecords;
+
+        if(searchType == "Location")
+        {
+            query = query.Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
+        }
+        else if(searchType == "All")
+        {
+            query = query.
+                Where(m => EF.Functions.Like(m.RecordType, searchQuery) || EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
+        }
+        else{
+            query = query.
+                Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
+        }
+            
+        var medicalRecords = await query
+            .Include(m => m.Admin)
+            .ThenInclude(a => a.Hospital)
+            .ToListAsync();
+
+        var results = new List<Object>();
+
+        medicalRecords.ForEach(m =>
+        {
+            var result = new
+            {
+                m.Id, m.FilePath, m.Date, m.Description,
+                Admin = new
+                {
+                    m.Admin.Id,
+                    m.Admin.Name,
+                    Hospital = new
+                    {
+                        m.Admin.Hospital.Id,
+                        m.Admin.Hospital.Name,
+                    }
+                }
+            };
+
+            results.Add(result);
+        });
+
+        return Ok(results);
     }
 }
