@@ -148,7 +148,7 @@ public class VaccinationsController : Controller
         var v = new Vaccination
         {
             PatientId = model.PatientId,
-            HospitalId = model.HospitalId,
+            HospitalId = 1,//model.HospitalId,
             VaccineBrandId = model.VaccineBrandId,
             DateOfVaccination = model.DateOfVaccination,
             Dose = model.Dose
@@ -157,7 +157,11 @@ public class VaccinationsController : Controller
         _context.Vaccinations.Add(v);
         await _context.SaveChangesAsync();
 
-        return Ok(model);
+        return Ok(new
+        {
+            request = "success",
+            message = "Vaccination added",
+        });
     }
     
     [HttpPut("{id}")]
@@ -174,16 +178,19 @@ public class VaccinationsController : Controller
         {
             return NotFound();
         }
-        
-        existingVaccination.PatientId = model.PatientId;
-        existingVaccination.HospitalId = model.HospitalId;
+
+        // Makes changes
         existingVaccination.VaccineBrandId = model.VaccineBrandId;
         existingVaccination.DateOfVaccination = model.DateOfVaccination;
         existingVaccination.Dose = model.Dose;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Saves the changes in the database
 
-        return Ok(existingVaccination);
+        return Ok(new
+        {
+            request = "success",
+            message = "Vaccination updated",
+        });
     }
     
     [HttpDelete("{id}")]

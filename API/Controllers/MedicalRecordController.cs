@@ -123,7 +123,7 @@ namespace API.Controllers
 
         // POST: api/MedicalRecord
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] MedicalRecordsModel model)
+        public async Task<IActionResult> Create([FromForm] MedicalRecordsModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -133,11 +133,11 @@ namespace API.Controllers
             var medicalRecord = new MedicalRecord
             {
                 PatientId = model.PatientId,
-                AdminId = model.AdminId,
+                AdminId = 1,
                 RecordType = model.RecordType,
                 Description = model.Description,
                 Date = model.Date,
-                FilePath = model.FilePath
+                //FilePath = model.FilePath
             };
 
             _context.MedicalRecords.Add(medicalRecord);
@@ -148,7 +148,7 @@ namespace API.Controllers
 
         // PUT: api/MedicalRecord/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] MedicalRecordsModel model)
+        public async Task<IActionResult> Update(int id, [FromForm] MedicalRecordsModel model)
         {
             if (!ModelState.IsValid)
             {
@@ -162,12 +162,10 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            existingRecord.PatientId = model.PatientId;
-            existingRecord.AdminId = model.AdminId;
             existingRecord.RecordType = model.RecordType;
             existingRecord.Description = model.Description;
             existingRecord.Date = model.Date;
-            existingRecord.FilePath = model.FilePath;
+            //existingRecord.FilePath = model.FilePath;
 
             await _context.SaveChangesAsync();
 
