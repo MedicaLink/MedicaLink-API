@@ -1,4 +1,5 @@
 ﻿using API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,8 @@ namespace API.Controllers
         }
 
         // GET: api/vaccine
+        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "DoctorOnly")]
         public async Task<IActionResult> Index()
         {
             var vaccines = await _context.Vaccines.Include(v => v.VaccineBrands).ToListAsync();

@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 public class VaccinationsController : Controller
 {
@@ -18,7 +20,6 @@ public class VaccinationsController : Controller
         _context = context;
     }
     
-    // [Authorize]
     // GET
     public async Task<IActionResult> Index([FromQuery] VaccinationModel model)
     {
@@ -136,7 +137,9 @@ public class VaccinationsController : Controller
 
         return Ok(results);
     }
-    
+
+    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "DoctorOnly")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] VaccinationModel model)
     {
@@ -145,10 +148,19 @@ public class VaccinationsController : Controller
             return BadRequest(ModelState);
         }
 
+        // Fetch the admin
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return BadRequest("User lacks neccessary credentials");
+
+        int uId = int.Parse(userId);
+        var admins = await _context.Admins.Where(a => a.Id == uId).ToListAsync();
+        if (admins.IsNullOrEmpty()) return BadRequest("User lacks neccessary credentials");
+        var admin = admins[0];
+
         var v = new Vaccination
         {
             PatientId = model.PatientId,
-            HospitalId = 1,//model.HospitalId,
+            HospitalId = admin.HospitalId,//model.HospitalId,
             VaccineBrandId = model.VaccineBrandId,
             DateOfVaccination = model.DateOfVaccination,
             Dose = model.Dose
@@ -163,7 +175,9 @@ public class VaccinationsController : Controller
             message = "Vaccination added",
         });
     }
-    
+
+    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "DoctorOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] VaccinationModel model)
     {
@@ -173,11 +187,6 @@ public class VaccinationsController : Controller
         }
 
         var existingVaccination = await _context.Vaccinations.FindAsync(id);
-
-        if (existingVaccination == null)
-        {
-            return NotFound();
-        }
 
         // Makes changes
         existingVaccination.VaccineBrandId = model.VaccineBrandId;

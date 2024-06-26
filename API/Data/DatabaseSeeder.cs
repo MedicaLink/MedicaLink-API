@@ -49,6 +49,33 @@ public class DatabaseSeeder
             _context.SaveChanges();
         }
 
+        if (!_context.Doctors.Any())
+        {
+            var admins = _context.Admins.ToList();
+            var addedAdminIds = new List<int>();
+
+            var faker = new Faker<Doctor>()
+                .RuleFor(d => d.Name, f => f.Name.FullName())
+                .RuleFor(d => d.DateOfBirth, f => f.Date.BetweenDateOnly(new DateOnly(1950, 12, 31), new DateOnly(2024, 5, 30)))
+                .RuleFor(d => d.Title, f => f.Person.Company.Bs)
+                .RuleFor(d => d.AdminId, f =>
+                {
+                    int selectedAdminId;
+                    do
+                    {
+                        selectedAdminId = f.PickRandom(admins).Id;
+
+                    } while (addedAdminIds.Contains(selectedAdminId));
+
+                    addedAdminIds.Add(selectedAdminId);
+                    return selectedAdminId;
+                });
+
+            var doctors = faker.Generate(5);
+            _context.Doctors.AddRange(doctors);
+            _context.SaveChanges();
+        }
+
         if (!_context.Patients.Any())
         {
             var admins = _context.Admins.ToList();

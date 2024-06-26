@@ -4,9 +4,12 @@ using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class MedicalRecordController : Controller
     {
@@ -94,7 +97,10 @@ namespace API.Controllers
                 .ThenInclude(a => a.Hospital)
                 .ToListAsync();
 
-            int adminHospitalId = 1; // This should be retireved from the JWT
+            // To check whether the current user has the ability to edit this record
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return BadRequest("User doesn't have the neccessary access credentials");
+
 
             var results = new List<Object>();
             medicalRecords.ForEach(m =>
@@ -112,7 +118,7 @@ namespace API.Controllers
                             m.Admin.Hospital.Name,
                         }
                     },
-                    IsEditable = m.Admin.Hospital.Id == adminHospitalId // Check wether the user can edit the record
+                    IsEditable = m.AdminId == int.Parse(userId) // Indicates wether the user can edit the record
                 };
 
                 results.Add(result);
@@ -122,6 +128,8 @@ namespace API.Controllers
         }
 
         // POST: api/MedicalRecord
+        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "DoctorOnly")]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] MedicalRecordsModel model)
         {
@@ -130,10 +138,13 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userId == null) return BadRequest("User doesn't have permission, the user Id is missing");
+
             var medicalRecord = new MedicalRecord
             {
                 PatientId = model.PatientId,
-                AdminId = 1,
+                AdminId = int.Parse(userId),
                 RecordType = model.RecordType,
                 Description = model.Description,
                 Date = model.Date,
@@ -147,6 +158,8 @@ namespace API.Controllers
         }
 
         // PUT: api/MedicalRecord/{id}
+        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "DoctorOnly")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] MedicalRecordsModel model)
         {
@@ -157,9 +170,13 @@ namespace API.Controllers
 
             var existingRecord = await _context.MedicalRecords.FindAsync(id);
 
-            if (existingRecord == null)
+            if (existingRecord == null) return NotFound();
+
+            if (User.IsInRole("Doctor"))
             {
-                return NotFound();
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null) return BadRequest("This doctor doesn't have authority");
+                if (existingRecord.AdminId != int.Parse(userId)) return BadRequest("This doctor doesn't have edit access to this vaccination");
             }
 
             existingRecord.RecordType = model.RecordType;

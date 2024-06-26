@@ -47,13 +47,19 @@ namespace API.Controllers
             var userRole = admin != null ? "Admin" : "Patient";
             var userId = admin != null ? admin.Id : patient.Id;
 
+            if(userRole == "Admin") // If the user is an Admin check if he/she is a doctor
+            {
+                var doctors = await _context.Doctors.Where(d => d.AdminId == userId).ToListAsync();
+                if (! doctors.IsNullOrEmpty()) userRole = "Doctor";
+            }
+
             var JWTToken = GenerateJWT(loginModel.UserName, userRole, userId); // Generate the JWT
 
             return Ok(new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(JWTToken),
                 expiration = JWTToken.ValidTo,
-                userId = userId,
+                userId,
                 userName = loginModel.UserName,
                 role = userRole,
             });

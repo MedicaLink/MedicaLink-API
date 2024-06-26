@@ -60,7 +60,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
-    options.AddPolicy("Doctors", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
 });
 
 /*builder.Services.AddSwaggerGen(c =>
