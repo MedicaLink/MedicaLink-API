@@ -74,6 +74,7 @@ public class DatabaseSeeder
         {
             var admins = _context.Admins.ToList();
             var referenceNumbers = new HashSet<string>(); // Keeps track of added reference numbers
+            var images = new string[] { "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg" };
 
             var faker = new Faker<Patient>()
                 .RuleFor(p => p.Nic, f =>
@@ -93,7 +94,7 @@ public class DatabaseSeeder
                 .RuleFor(p => p.Weight, f => f.Random.Float(15, 100))
                 .RuleFor(p => p.Gender, f => f.PickRandom<Gender>())
                 .RuleFor(p => p.ContactNumber, f => f.Person.Phone)
-                .RuleFor(p => p.ProfileImage, f => f.Image.LoremPixelUrl(category: LoremPixelCategory.People,50,50))
+                .RuleFor(p => p.ProfileImage, f => $"/src/assets/img/profie/{f.PickRandom(images)}")
                 .RuleFor(p => p.RegisteredBy, f => f.PickRandom(admins).Id)
                 .RuleFor(p => p.Password, f => _passwordHasher.HashPassword(null,"password"));
 
