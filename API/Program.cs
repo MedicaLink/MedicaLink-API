@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -60,6 +61,12 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
     options.AddPolicy("PatientOnly", policy => policy.RequireRole("Patient"));
+    options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
+    options.AddPolicy("AdminOrDoctor", policy =>
+        policy.RequireAssertion(context =>
+            context.User.HasClaim(c => (c.Type == ClaimTypes.Role && c.Value == "Admin") ||
+                                       (c.Type == ClaimTypes.Role && c.Value == "Doctor"))
+        ));
 });
 
 /*builder.Services.AddSwaggerGen(c =>
@@ -103,14 +110,6 @@ using (var scope = app.Services.CreateScope())
 
     var seeder = new DatabaseSeeder(dbContext, passwordHasher);
     seeder.Seed();
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    /*app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MedicaLinkAPI v1"));*/
 }
 
 app.UseHttpsRedirection();

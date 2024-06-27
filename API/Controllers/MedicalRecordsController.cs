@@ -1,187 +1,211 @@
 using API.Data;
-using API.Models;
 using API.Models.FormModels;
+using API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
-namespace API.Controllers;
-
-[Route("api/[controller]")]
-public class MedicalRecordsController : Controller
+namespace API.Controllers
 {
-    private readonly ApplicationDbContext _context;
-    
-    public MedicalRecordsController(ApplicationDbContext context)
+    [Authorize]
+    [Route("api/[controller]")]
+    public class MedicalRecordsController : Controller
     {
-        _context = context;
-    }
-    
-    // Create a new medical record - POST: api/MedicalRecords
-    [HttpPost]
-    public async Task<IActionResult> Create([FromBody] MedicalRecordsModel model)
-    {
-        if (!ModelState.IsValid)
+        ApplicationDbContext _context;
+
+        public MedicalRecordsController(ApplicationDbContext context)
         {
-            return BadRequest(ModelState);
+            _context = context;
         }
 
-        var medicalRecord = new MedicalRecord
+        // GET: api/MedicalRecord
+        public async Task<IActionResult> Index([FromQuery] MedicalRecordModel model)
         {
-            PatientId = model.PatientId,
-            AdminId = model.AdminId,
-            RecordType = model.RecordType,
-            Description = model.Description,
-            Date = model.Date,
-            FilePath = model.FilePath
-        };
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        _context.MedicalRecords.Add(medicalRecord);
-        await _context.SaveChangesAsync();
+            int patientId = model.PatientId;
 
-        return Ok(medicalRecord);
-    }
-    
-    // List all medical records - GET: api/MedicalRecords
-    [HttpGet]
-    public async Task<IActionResult> Index([FromQuery] MedicalRecordModel model)
-    {
-        if (!ModelState.IsValid) return BadRequest(ModelState);
+            var medicalRecords = await _context.MedicalRecords
+                .Where(m => m.PatientId == patientId)
+                .Include(m => m.Admin)
+                .ThenInclude(a => a.Hospital)
+                .OrderByDescending(m => m.Date)
+                .Take(6)
+                .ToListAsync();
 
-        int patientId = model.PatientId;
+            var results = new List<Object>();
 
-        var medicalRecords = await _context.MedicalRecords
-            .Where(m => m.PatientId == patientId)
-            .Include(m => m.Admin)
-            .ThenInclude(a => a.Hospital)
-            .OrderByDescending(m => m.Date)
-            .Take(6)
-            .ToListAsync();
-
-        var results = new List<Object>();
-
-        medicalRecords.ForEach(m =>
-        {
-            var result = new
+            medicalRecords.ForEach(m =>
             {
-                m.Id,
-                m.RecordType, m.Description,
-                m.Date, m.FilePath,
-                Admin = new
+                var result = new
                 {
-                    m.Admin.Id,
-                    m.Admin.Name,
-                    Hospital = new
+                    m.Id,
+                    m.RecordType, m.Description,
+                    m.Date, m.FilePath,
+                    Admin = new
                     {
-                        m.Admin.Hospital.Id,
+                        m.Admin.Id,
                         m.Admin.Name,
+                        Hospital = new
+                        {
+                            m.Admin.Hospital.Id,
+                            m.Admin.Name,
+                        }
                     }
-                }
-            };
+                };
 
-            results.Add(result);
-        });
+                results.Add(result);
+            });
 
-        return Ok(results);
-    }
-    
-    // Update a medical record - PUT: api/MedicalRecords/{id}
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] MedicalRecordsModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
+            return Ok(results);
         }
 
-        var existingRecord = await _context.MedicalRecords.FindAsync(id);
-
-        if (existingRecord == null)
+        // GET: api/MedicalRecord/search
+        [Route("search")]
+        public async Task<IActionResult> Search([FromQuery] MedicalRecordSearchModel model)
         {
-            return NotFound();
-        }
+            if(!ModelState.IsValid) return BadRequest(model);
 
-        existingRecord.PatientId = model.PatientId;
-        existingRecord.AdminId = model.AdminId;
-        existingRecord.RecordType = model.RecordType;
-        existingRecord.Description = model.Description;
-        existingRecord.Date = model.Date;
-        existingRecord.FilePath = model.FilePath;
+            int patientId = model.PatientId;
+            string searchQuery = model.Query;
+            string searchType = model.Type;
 
-        await _context.SaveChangesAsync();
+            IQueryable<MedicalRecord> query = _context.MedicalRecords.Where(m => m.PatientId == patientId);
 
-        return Ok(existingRecord);
-    }
-
-    // Delete a medical record - DELETE: api/MedicalRecords/{id}
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var medicalRecord = await _context.MedicalRecords.FindAsync(id);
-
-        if (medicalRecord == null)
-        {
-            return NotFound();
-        }
-
-        _context.MedicalRecords.Remove(medicalRecord);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-    
-    // Search for a medical record - GET: api/MedicalRecords/search
-    [Route("search")]
-    public async Task<IActionResult> Search([FromQuery] MedicalRecordSearchModel model)
-    {
-        if(!ModelState.IsValid) return BadRequest(model);
-
-        int patientId = model.PatientId;
-        string searchQuery = model.Query;
-        string searchType = model.Type;
-
-        IQueryable<MedicalRecord> query = _context.MedicalRecords;
-
-        if(searchType == "Location")
-        {
-            query = query.Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
-        }
-        else if(searchType == "All")
-        {
-            query = query.
-                Where(m => EF.Functions.Like(m.RecordType, searchQuery) || EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
-        }
-        else{
-            query = query.
-                Where(m => EF.Functions.Like(m.Admin.Hospital.Name, searchQuery));
-        }
-            
-        var medicalRecords = await query
-            .Include(m => m.Admin)
-            .ThenInclude(a => a.Hospital)
-            .ToListAsync();
-
-        var results = new List<Object>();
-
-        medicalRecords.ForEach(m =>
-        {
-            var result = new
+            if (!searchQuery.IsNullOrEmpty())
             {
-                m.Id, m.FilePath, m.Date, m.Description,
-                Admin = new
+                if (searchType == "Location")
                 {
-                    m.Admin.Id,
-                    m.Admin.Name,
-                    Hospital = new
-                    {
-                        m.Admin.Hospital.Id,
-                        m.Admin.Hospital.Name,
-                    }
+                    query = query.Where(m => EF.Functions.Like(m.Admin.Hospital.Name, $"%{searchQuery}%"));
                 }
+                else if (searchType == "All")
+                {
+                    query = query.
+                        Where(m => EF.Functions.Like(m.RecordType, $"%{searchQuery}%") || EF.Functions.Like(m.Admin.Hospital.Name, $"%{searchQuery}%"));
+                }
+                else
+                {
+                    query = query.
+                        Where(m => EF.Functions.Like(m.RecordType, $"%{searchQuery}%"));
+                }
+            }
+            
+            var medicalRecords = await query
+                .Include(m => m.Admin)
+                .ThenInclude(a => a.Hospital)
+                .ToListAsync();
+
+            // To check whether the current user has the ability to edit this record
+            var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
+            if (userId == null) return BadRequest("User doesn't have the neccessary access credentials");
+            
+            var uID = int.Parse(userId);
+
+
+            var results = new List<Object>();
+            medicalRecords.ForEach(m =>
+            {
+                var result = new
+                {
+                    m.Id, m.RecordType, m.FilePath, m.Date, m.Description,
+                    Admin = new
+                    {
+                        m.Admin.Id,
+                        m.Admin.Name,
+                        Hospital = new
+                        {
+                            m.Admin.Hospital.Id,
+                            m.Admin.Hospital.Name,
+                        }
+                    },
+                    IsEditable = m.AdminId == uID // Indicates wether the user can edit the record
+                };
+
+                results.Add(result);
+            });
+
+            return Ok(results);
+        }
+
+        // POST: api/MedicalRecord
+        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "DoctorOnly")]
+        [HttpPost]
+        public async Task<IActionResult> Create([FromForm] MedicalRecordsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
+            if(userId == null) return BadRequest("User doesn't have permission, the user Id is missing");
+
+            var medicalRecord = new MedicalRecord
+            {
+                PatientId = model.PatientId,
+                AdminId = int.Parse(userId),
+                RecordType = model.RecordType,
+                Description = model.Description,
+                Date = model.Date,
+                //FilePath = model.FilePath
             };
 
-            results.Add(result);
-        });
+            _context.MedicalRecords.Add(medicalRecord);
+            await _context.SaveChangesAsync();
 
-        return Ok(results);
+            return Ok(medicalRecord);
+        }
+
+        // PUT: api/MedicalRecord/{id}
+        [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "DoctorOnly")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromForm] MedicalRecordsModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var existingRecord = await _context.MedicalRecords.FindAsync(id);
+
+            if (existingRecord == null) return NotFound();
+
+            if (! User.IsInRole("Admin"))
+            {
+                var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
+                if (userId == null) return BadRequest("This doctor doesn't have authority");
+                if (existingRecord.AdminId != int.Parse(userId)) return BadRequest("This doctor doesn't have edit access to this vaccination");
+            }
+
+            existingRecord.RecordType = model.RecordType;
+            existingRecord.Description = model.Description;
+            existingRecord.Date = model.Date;
+            //existingRecord.FilePath = model.FilePath;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(existingRecord);
+        }
+
+        // DELETE: api/MedicalRecord/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var medicalRecord = await _context.MedicalRecords.FindAsync(id);
+
+            if (medicalRecord == null)
+            {
+                return NotFound();
+            }
+
+            _context.MedicalRecords.Remove(medicalRecord);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

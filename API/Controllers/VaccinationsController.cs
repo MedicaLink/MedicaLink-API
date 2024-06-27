@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace API.Controllers;
 
+[Authorize]
 [Route("api/[controller]")]
 public class VaccinationsController : Controller
 {
@@ -18,7 +20,6 @@ public class VaccinationsController : Controller
         _context = context;
     }
     
-    // [Authorize]
     // GET
     public async Task<IActionResult> Index([FromQuery] VaccinationModel model)
     {
@@ -103,8 +104,9 @@ public class VaccinationsController : Controller
             .OrderByDescending(v => v.DateOfVaccination)
             .ToListAsync();
 
-        var results = new List<Object>();
+        int adminHospitalId = 1; // This should be retireved from the JWT
 
+        var results = new List<Object>();
         vaccinations.ForEach(v =>
         {
             var result = new
@@ -126,7 +128,8 @@ public class VaccinationsController : Controller
                 {
                     v.Hospital.Id,
                     v.Hospital.Name
-                }
+                },
+                IsEditable = v.Hospital.Id == adminHospitalId // Check wether the user can edit the record
             };
 
             results.Add(result);
@@ -134,7 +137,9 @@ public class VaccinationsController : Controller
 
         return Ok(results);
     }
-    
+
+    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "DoctorOnly")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] VaccinationModel model)
     {
@@ -143,10 +148,19 @@ public class VaccinationsController : Controller
             return BadRequest(ModelState);
         }
 
+        // Fetch the admin
+        var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
+        if (userId == null) return BadRequest("User lacks neccessary credentials");
+
+        int uId = int.Parse(userId);
+        var admins = await _context.Admins.Where(a => a.Id == uId).ToListAsync();
+        if (admins.IsNullOrEmpty()) return BadRequest("User lacks neccessary credentials");
+        var admin = admins[0];
+
         var v = new Vaccination
         {
             PatientId = model.PatientId,
-            HospitalId = model.HospitalId,
+            HospitalId = admin.HospitalId,//model.HospitalId,
             VaccineBrandId = model.VaccineBrandId,
             DateOfVaccination = model.DateOfVaccination,
             Dose = model.Dose
@@ -155,9 +169,15 @@ public class VaccinationsController : Controller
         _context.Vaccinations.Add(v);
         await _context.SaveChangesAsync();
 
-        return Ok(model);
+        return Ok(new
+        {
+            request = "success",
+            message = "Vaccination added",
+        });
     }
-    
+
+    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "DoctorOnly")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] VaccinationModel model)
     {
@@ -168,20 +188,18 @@ public class VaccinationsController : Controller
 
         var existingVaccination = await _context.Vaccinations.FindAsync(id);
 
-        if (existingVaccination == null)
-        {
-            return NotFound();
-        }
-        
-        existingVaccination.PatientId = model.PatientId;
-        existingVaccination.HospitalId = model.HospitalId;
+        // Makes changes
         existingVaccination.VaccineBrandId = model.VaccineBrandId;
         existingVaccination.DateOfVaccination = model.DateOfVaccination;
         existingVaccination.Dose = model.Dose;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // Saves the changes in the database
 
-        return Ok(existingVaccination);
+        return Ok(new
+        {
+            request = "success",
+            message = "Vaccination updated",
+        });
     }
     
     [HttpDelete("{id}")]
