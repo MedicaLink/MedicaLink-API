@@ -11,11 +11,11 @@ namespace API.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class MedicalRecordController : Controller
+    public class MedicalRecordsController : Controller
     {
         ApplicationDbContext _context;
 
-        public MedicalRecordController(ApplicationDbContext context)
+        public MedicalRecordsController(ApplicationDbContext context)
         {
             _context = context;
         }
