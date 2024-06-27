@@ -51,27 +51,21 @@ public class DatabaseSeeder
 
         if (!_context.Doctors.Any())
         {
-            var admins = _context.Admins.ToList();
-            var addedAdminIds = new List<int>();
+            var admins = _context.Admins.Where(a => a.Type == AdminType.Admin).ToList();
 
             var faker = new Faker<Doctor>()
                 .RuleFor(d => d.Name, f => f.Name.FullName())
                 .RuleFor(d => d.DateOfBirth, f => f.Date.BetweenDateOnly(new DateOnly(1950, 12, 31), new DateOnly(2024, 5, 30)))
-                .RuleFor(d => d.Title, f => f.Person.Company.Bs)
-                .RuleFor(d => d.AdminId, f =>
-                {
-                    int selectedAdminId;
-                    do
-                    {
-                        selectedAdminId = f.PickRandom(admins).Id;
+                .RuleFor(d => d.Title, f => f.Person.Company.Bs);
 
-                    } while (addedAdminIds.Contains(selectedAdminId));
+            var doctors = new List<Doctor>();
+            admins.ForEach(a =>
+            {
+                var doctor = faker.Generate(1)[0];
+                doctor.AdminId = a.Id;
+                doctors.Add(doctor);
+            });
 
-                    addedAdminIds.Add(selectedAdminId);
-                    return selectedAdminId;
-                });
-
-            var doctors = faker.Generate(5);
             _context.Doctors.AddRange(doctors);
             _context.SaveChanges();
         }

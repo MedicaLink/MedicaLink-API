@@ -44,16 +44,19 @@ namespace API.Controllers
                 return Unauthorized();
             }
 
-            var userRole = admin != null ? "Admin" : "Patient";
+            List<string> userRoles = [];
+            userRoles.Add(admin != null ? "Doctor" : "User");
+
+            var userRole = userRoles[0];
             var userId = admin != null ? admin.Id : patient.Id;
 
-            if(userRole == "Admin") // If the user is an Admin check if he/she is a doctor
+            if (userRoles[0] == "Doctor" && admin.Type == AdminType.SuperAdmin) // If the user is an Admin check if he/she is a doctor
             {
-                var doctors = await _context.Doctors.Where(d => d.AdminId == userId).ToListAsync();
-                if (! doctors.IsNullOrEmpty()) userRole = "Doctor";
+                userRoles.Add("Admin");
+                userRole = "Admin";
             }
 
-            var JWTToken = GenerateJWT(loginModel.UserName, userRole, userId); // Generate the JWT
+            var JWTToken = GenerateJWT(loginModel.UserName, userRoles, userId); // Generate the JWT
 
             return Ok(new
             {
@@ -62,18 +65,23 @@ namespace API.Controllers
                 userId,
                 userName = loginModel.UserName,
                 role = userRole,
+                allRoles = userRoles
             });
         }
 
-        private JwtSecurityToken GenerateJWT(string Username, string UserRole, int UserId)
+        private JwtSecurityToken GenerateJWT(string Username, List<string> UserRoles, int UserId)
         {
-            var authClaims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, Username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, UserId.ToString()),
-            new Claim(ClaimTypes.Role, UserRole)
-        };
+            var authClaims = new List<Claim>()
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, Username),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.PrimarySid, UserId.ToString()),
+            };
+
+            UserRoles.ForEach(role =>
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            });
 
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 

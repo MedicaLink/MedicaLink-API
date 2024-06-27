@@ -149,7 +149,7 @@ public class VaccinationsController : Controller
         }
 
         // Fetch the admin
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
         if (userId == null) return BadRequest("User lacks neccessary credentials");
 
         int uId = int.Parse(userId);

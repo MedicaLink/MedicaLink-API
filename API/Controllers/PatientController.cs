@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace API.Controllers
 {
@@ -64,8 +65,7 @@ namespace API.Controllers
         }
 
         [Route("latest")]
-        [Authorize(Policy = "AdminOnly")]
-        //[Authorize(Policy = "DoctorOnly")]
+        [Authorize(Policy = "AdminOrDoctor")]
         public async Task<IActionResult> Latest()
         {
             var patients = await _context.Patients
@@ -109,8 +109,7 @@ namespace API.Controllers
         }
 
         [Route("search")]
-        [Authorize(Policy = "AdminOnly")]
-        //[Authorize(Policy = "DoctorOnly")]
+        [Authorize(Policy = "AdminOrDoctor")]
         public async Task<IActionResult> Search([FromQuery] PatientSearchModel model)
         {
             if(!ModelState.IsValid)
@@ -172,8 +171,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "AdminOnly")]
-        //[Authorize(Policy = "DoctorOnly")]
+        [Authorize(Policy = "AdminOrDoctor")]
         public async Task<IActionResult> create([FromForm] PatientModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -224,8 +222,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Policy = "AdminOnly")]
-        //[Authorize(Policy = "DoctorOnly")]
+        [Authorize(Policy = "AdminOrDoctor")]
         public async Task<IActionResult> update(int id,[FromForm] PatientModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -275,6 +272,17 @@ namespace API.Controllers
             {
                 Type = "Success",
                 Message = "Patient updated successfully"
+            });
+        }
+
+        [HttpGet("test")]
+        public async Task<IActionResult> test()
+        {
+            var role = User.FindFirstValue(ClaimTypes.Role);
+
+            return Ok(new
+            {
+                role
             });
         }
 

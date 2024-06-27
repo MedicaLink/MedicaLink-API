@@ -98,8 +98,10 @@ namespace API.Controllers
                 .ToListAsync();
 
             // To check whether the current user has the ability to edit this record
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
             if (userId == null) return BadRequest("User doesn't have the neccessary access credentials");
+            
+            var uID = int.Parse(userId);
 
 
             var results = new List<Object>();
@@ -118,7 +120,7 @@ namespace API.Controllers
                             m.Admin.Hospital.Name,
                         }
                     },
-                    IsEditable = m.AdminId == int.Parse(userId) // Indicates wether the user can edit the record
+                    IsEditable = m.AdminId == uID // Indicates wether the user can edit the record
                 };
 
                 results.Add(result);
@@ -138,7 +140,7 @@ namespace API.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
             if(userId == null) return BadRequest("User doesn't have permission, the user Id is missing");
 
             var medicalRecord = new MedicalRecord
@@ -172,9 +174,9 @@ namespace API.Controllers
 
             if (existingRecord == null) return NotFound();
 
-            if (User.IsInRole("Doctor"))
+            if (! User.IsInRole("Admin"))
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userId = User.FindFirstValue(ClaimTypes.PrimarySid);
                 if (userId == null) return BadRequest("This doctor doesn't have authority");
                 if (existingRecord.AdminId != int.Parse(userId)) return BadRequest("This doctor doesn't have edit access to this vaccination");
             }
