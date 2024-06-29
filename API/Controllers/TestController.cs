@@ -37,7 +37,6 @@ namespace API.Controllers
         }
 
         [HttpGet("all")] // Route for all authenticated users
-        [Authorize]
         public IActionResult All() 
         {
             return Ok(new
