@@ -1,0 +1,4 @@
+endpoints:
+  - name: MedicaLink
+    port: 80
+    type: REST
