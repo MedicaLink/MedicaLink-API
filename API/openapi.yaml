@@ -1,0 +1,28 @@
+openapi: "3.1.0"
+info:
+  title: MedicaLink API
+  description: API documentation for MedicaLink
+  version: 1.0.0
+servers:
+  - url: https://your-choreo-api-url
+paths:
+  /api/test:
+    get:
+      summary: Test endpoint
+      responses:
+        '200':
+          description: Successful response
+  /api/anotherEndpoint:
+    post:
+      summary: Another endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                param1:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
