@@ -1,4 +1,13 @@
 apiVersion: core.choreo.dev/v1beta1
 kind: ComponentConfig
-spec:
-  
+components:
+    deployment:
+      environments:
+        - name: dev
+          environment_variables:
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=db.example.com;Database=mydatabase;User Id=myusername;Password=mypassword;"
+        - name: prod
+          environment_variables:
+            - name: ConnectionStrings__DefaultConnection
+              value: "Server=localhost,3306;Database=medicalink_new;User=root;Password=;"
