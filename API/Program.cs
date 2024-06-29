@@ -1,5 +1,6 @@
 using API.Data;
 using API.Models;
+using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,14 +11,24 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("https://*:80");
+//builder.WebHost.UseUrls("https://*:80");
+
+DotEnv.Load();
+
+string dbServer = Environment.GetEnvironmentVariable("DB_HOST");
+string dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+string connectionString = $"Server={dbServer},{dbPort};Database={dbName};User={dbUser};Password={dbPassword};";
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MySqlServerVersion(new Version(8, 0, 23))));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));
 
 // Configure Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
