@@ -5,9 +5,25 @@ components:
       environments:
         - name: dev
           environment_variables:
-            - name: ConnectionStrings__DefaultConnection
-              value: "Server=db.example.com;Database=mydatabase;User Id=myusername;Password=mypassword;"
+            - name: DB_SERVER
+              value: "${{ secrets.DB_HOST }}"
+            - name: DB_NAME
+              value: "${{ secrets.DB_NAME }}"
+            - name: DB_PORT
+              value: "${{ secrets.DB_PORT }}"
+            - name: DB_USER
+              value: "${{ secrets.DB_USER }}"
+            - name: DB_PASSWORD
+              value: "${{ secrets.DB_PASSWORD }}"
         - name: prod
           environment_variables:
-            - name: ConnectionStrings__DefaultConnection
-              value: "Server=localhost,3306;Database=medicalink_new;User=root;Password=;"
+            - name: DB_SERVER
+              value: "${{ secrets.DB_HOST }}"
+            - name: DB_NAME
+              value: "${{ secrets.DB_NAME }}"
+            - name: DB_PORT
+              value: "${{ secrets.DB_PORT }}"
+            - name: DB_USER
+              value: "${{ secrets.DB_USER }}"
+            - name: DB_PASSWORD
+              value: "${{ secrets.DB_PASSWORD }}"
