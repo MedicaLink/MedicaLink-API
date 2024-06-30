@@ -11,7 +11,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://*:9090");
 
 DotEnv.Load();
 
@@ -111,4 +110,4 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-app.Run();
+app.Run("http://*:9090");
