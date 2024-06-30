@@ -13,16 +13,11 @@ paths:
         '200':
           description: Successful response
   /api/test/all:
-    post:
+    get:
       summary: Another endpoint
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                param1:
-                  type: string
+      response:
+        '200':
+            description: Successful response
       responses:
         '200':
           description: Successful response
