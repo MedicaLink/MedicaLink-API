@@ -26,13 +26,13 @@ string connectionString = $"Server={dbServer},{dbPort};Database={dbName};User={d
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));
+/*builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));*/
 
 // Configure Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+/*builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders();*/
 
 builder.Services.AddScoped<IPasswordHasher<Admin>, PasswordHasher<Admin>>();
 builder.Services.AddScoped<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
@@ -85,7 +85,7 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 // Seed the database
-using (var scope = app.Services.CreateScope())
+/*using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var dbContext = services.GetRequiredService<ApplicationDbContext>();
@@ -93,12 +93,7 @@ using (var scope = app.Services.CreateScope())
 
     var seeder = new DatabaseSeeder(dbContext, passwordHasher);
     seeder.Seed();
-}
-
-if (app.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
+}*/
 
 app.UseRouting();
 

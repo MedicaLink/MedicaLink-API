@@ -10,24 +10,24 @@ namespace API.Controllers
     [Route("api/[Controller]")]
     public class TestController : ControllerBase
     {
-        ApplicationDbContext _context;
 
-        public TestController(ApplicationDbContext context)
+        public TestController()
         {
-            _context = context;
         }
 
         [HttpGet("admin")] // Route only for authenticated admins
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]
         public IActionResult Index()
         {
-            var patients = _context.Patients;
 
-            return Ok(patients);
+            return Ok(new
+            {
+                Message ="Hellow"
+            });
         }
 
         [HttpGet("user")] // Route only for patients
-        [Authorize(Policy = "PatientOnly")]
+        //[Authorize(Policy = "PatientOnly")]
         public IActionResult Patient() 
         {
             return Ok(new
