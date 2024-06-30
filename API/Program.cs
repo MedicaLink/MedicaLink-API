@@ -95,7 +95,10 @@ using (var scope = app.Services.CreateScope())
     seeder.Seed();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
 
@@ -110,4 +113,4 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-app.Run("http://*:9090");
+app.Run("http://*:5001");

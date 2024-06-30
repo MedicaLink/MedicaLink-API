@@ -41,4 +41,4 @@ USER 10014
 ENTRYPOINT ["dotnet", "API.dll"]
 
 # Expose the port that your application runs on
-EXPOSE 9090
+EXPOSE 5001
