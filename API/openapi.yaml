@@ -6,6 +6,155 @@ info:
 servers:
   - url: https://8e2cd8ab-ce5c-4366-bc71-6ee56cdd875f-dev.e1-us-east-azure.choreoapis.dev/medicalinkapi/medicalink-api/v1.0
 paths:
+
+# Login endpoints
+  /api/login:
+    post:
+      summary: Route for obtaining jwt token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+        '401':
+          description: Unauthorized response
+
+# Patient endpoints
+  /api/patient:
+    get:
+      summary: A list of all the patients in the Database
+      responses:
+        '200':
+          description: Successful response
+        '401':
+          description: Unauthorized response
+    post:
+      summary: Adds a new patient
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                nic:
+                  type: string
+                bloodGroup:
+                  type: string
+                dateOfBirth:
+                  type: string
+                height:
+                  type: string
+                weight:
+                  type: string
+                address:
+                  type: string
+                  nullable: true
+                gender:
+                  type: string
+                profileImage:
+                  type: string
+                  nullable: true
+                  format: binary
+      responses:
+        '200':
+          description: Patient added successfully
+        '401':
+          description: Unauthorized response
+
+  /api/patient/{patientId}:
+    get:
+      summary: Fetches a single patient from the database
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Patient found
+        '404':
+          description: Patient not found
+        '401':
+          description: Unauthorized response
+    put:
+      summary: Updates an existing patient
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                nic:
+                  type: string
+                bloodGroup:
+                  type: string
+                dateOfBirth:
+                  type: string
+                height:
+                  type: string
+                weight:
+                  type: string
+                address:
+                  type: string
+                  nullable: true
+                gender:
+                  type: string
+                profileImage:
+                  type: string
+                  nullable: true
+                  format: binary
+      responses:
+        '200':
+          description: Patient updated successfully
+        '404':
+          description: Patient not found
+        '401':
+          description: Unauthorized response
+
+  /api/patient/latest:
+    get:
+      summary: A list of newly registered patients
+      responses:
+        '200':
+          description: Successful response
+        '401':
+          description: Unauthorized response
+
+  /api/patient/search:
+    get:
+      summary: A list of patients which matches the search
+      parameters:
+        - name: query
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+        '401':
+          description: Unauthorized response
+
+# Test endpoints
   /api/test/admin:
     get:
       summary: Test endpoint with database
