@@ -27,7 +27,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));*/
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 23))));
 
 // Configure Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
