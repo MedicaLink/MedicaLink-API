@@ -10,20 +10,20 @@ namespace API.Controllers
     [Route("api/[Controller]")]
     public class TestController : ControllerBase
     {
+        ApplicationDbContext _context;
 
-        public TestController()
+        public TestController(ApplicationDbContext context)
         {
+            _context = context;
         }
 
         [HttpGet("admin")] // Route only for authenticated admins
         //[Authorize(Policy = "AdminOnly")]
         public IActionResult Index()
         {
+            var patients = _context.Patients.ToList();
 
-            return Ok(new
-            {
-                Message ="Hellow"
-            });
+            return Ok(patients);
         }
 
         [HttpGet("user")] // Route only for patients

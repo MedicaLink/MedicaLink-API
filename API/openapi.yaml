@@ -6,6 +6,12 @@ info:
 servers:
   - url: https://8e2cd8ab-ce5c-4366-bc71-6ee56cdd875f-dev.e1-us-east-azure.choreoapis.dev/medicalinkapi/medicalink-api/v1.0
 paths:
+  /api/test/admin:
+    get:
+      summary: Test endpoint with database
+      responses:
+        '200':
+          description: Successful response
   /api/test/forAll:
     get:
       summary: Test endpoint

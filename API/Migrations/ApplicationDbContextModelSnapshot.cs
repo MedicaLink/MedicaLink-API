@@ -185,7 +185,7 @@ namespace API.Migrations
                     b.Property<DateTime>("RegisteredDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime(6)")
-                        .HasDefaultValue(new DateTime(2024, 6, 26, 14, 45, 38, 91, DateTimeKind.Local).AddTicks(6135));
+                        .HasDefaultValue(new DateTime(2024, 6, 30, 21, 45, 53, 819, DateTimeKind.Local).AddTicks(3948));
 
                     b.Property<float>("Weight")
                         .HasColumnType("float");
