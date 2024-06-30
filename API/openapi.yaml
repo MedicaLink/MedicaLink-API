@@ -15,9 +15,6 @@ paths:
   /api/test/all:
     get:
       summary: Another endpoint
-      response:
-        '200':
-            description: Successful response
       responses:
         '200':
           description: Successful response
