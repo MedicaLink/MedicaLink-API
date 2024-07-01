@@ -91,6 +91,12 @@ paths:
           description: Unauthorized response
     put:
       summary: Updates an existing patient
+      parameters:
+        - name: patientId
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
