@@ -194,6 +194,10 @@ paths:
 
 components:
   securitySchemes:
+    ChoreoAuth:
+      type: apiKey
+      in: header
+      name: API-Key
     BearerAuth:
       type: http
       scheme: bearer
