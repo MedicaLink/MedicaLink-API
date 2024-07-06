@@ -27,7 +27,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(5, 5, 62))));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(5, 5, 62)),
+    mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
 // Configure Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -40,12 +41,14 @@ builder.Services.AddScoped<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        builder => builder
-            .WithOrigins("http://localhost:5173") // Add your frontend origin here
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()); // Add AllowCredentials if you need to send cookies or other credentials
+    options.AddPolicy("AllowReactApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        }); // Add AllowCredentials if you need to send cookies or other credentials
 });
 
 // Configure authorization
@@ -98,7 +101,7 @@ using (var scope = app.Services.CreateScope())
 app.UseRouting();
 
 // Use CORS middleware
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication(); // This must come before UseAuthorization
 app.UseAuthorization();
