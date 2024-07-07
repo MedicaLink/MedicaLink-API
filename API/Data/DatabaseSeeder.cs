@@ -3,6 +3,7 @@ using API.Models;
 using Bogus;
 using Bogus.DataSets;
 using Microsoft.AspNetCore.Identity;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace API.Data;
 
@@ -29,6 +30,12 @@ public class DatabaseSeeder
                 .RuleFor(h => h.Branch, f => f.Commerce.Department());
 
             var hospitals = faker.Generate(10);
+            hospitals.ForEach(async h =>
+            {
+                string randomLogo = await GetRandomImage(200, 200);
+                h.LogoImage = randomLogo;
+            });
+
             _context.Hospitals.AddRange(hospitals);
             _context.SaveChanges();
         }
@@ -74,7 +81,7 @@ public class DatabaseSeeder
         {
             var admins = _context.Admins.ToList();
             var referenceNumbers = new HashSet<string>(); // Keeps track of added reference numbers
-            var images = new string[] { "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg" };
+            //var images = new string[] { "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg" };
 
             var faker = new Faker<Patient>()
                 .RuleFor(p => p.Nic, f =>
@@ -94,11 +101,16 @@ public class DatabaseSeeder
                 .RuleFor(p => p.Weight, f => f.Random.Float(15, 100))
                 .RuleFor(p => p.Gender, f => f.PickRandom<Gender>())
                 .RuleFor(p => p.ContactNumber, f => f.Person.Phone)
-                .RuleFor(p => p.ProfileImage, f => $"/src/assets/img/profie/{f.PickRandom(images)}")
+            /*.RuleFor(p => p.ProfileImage, f => $"/src/assets/img/profie/{f.PickRandom(images)}")*/
                 .RuleFor(p => p.RegisteredBy, f => f.PickRandom(admins).Id)
                 .RuleFor(p => p.Password, f => _passwordHasher.HashPassword(null,"password"));
 
             var patients = faker.Generate(10);
+            patients.ForEach(async p =>
+            {
+                p.ProfileImage = await GetRandomImage(200, 200);
+            });
+
             _context.Patients.AddRange(patients);
             _context.SaveChanges();
         }
@@ -162,5 +174,15 @@ public class DatabaseSeeder
             _context.MedicalRecords.AddRange(medicalRecords);
             _context.SaveChanges();
         }
+    }
+
+    private async Task<string> GetRandomImage(int width = 200, int height = 300)
+    {
+        var httpClient = new HttpClient();
+
+        var response = await httpClient.GetAsync($"https://picsum.photos/{width}/{height}");
+        string uri = (response != null)? response.RequestMessage.RequestUri.ToString() : "";
+
+        return uri;
     }
 }

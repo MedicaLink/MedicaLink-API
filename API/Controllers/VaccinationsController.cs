@@ -61,7 +61,8 @@ public class VaccinationsController : Controller
                 Hospital = new
                 {
                     v.Hospital.Id,
-                    v.Hospital.Name
+                    v.Hospital.Name,
+                    v.Hospital.LogoImage
                 }
             };
 
@@ -127,7 +128,8 @@ public class VaccinationsController : Controller
                 Hospital = new
                 {
                     v.Hospital.Id,
-                    v.Hospital.Name
+                    v.Hospital.Name,
+                    v.Hospital.LogoImage
                 },
                 IsEditable = v.Hospital.Id == adminHospitalId // Check wether the user can edit the record
             };

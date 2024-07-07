@@ -1,5 +1,6 @@
 using API.Data;
 using API.Models;
+using dotenv.net;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +12,23 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotEnv.Load();
+
+string dbServer = Environment.GetEnvironmentVariable("DB_HOST");
+string dbPort = Environment.GetEnvironmentVariable("DB_PORT");
+string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+string dbUser = Environment.GetEnvironmentVariable("DB_USER");
+string dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+
+string connectionString = $"Server={dbServer},{dbPort};Database={dbName};User={dbUser};Password={dbPassword};";
+
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"), new MySqlServerVersion(new Version(8, 0, 23))));
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(5, 5, 62)),
+    mysqlOptions => mysqlOptions.EnableRetryOnFailure()));
 
 // Configure Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -29,12 +41,14 @@ builder.Services.AddScoped<IPasswordHasher<Patient>, PasswordHasher<Patient>>();
 // Configure CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigins",
-        builder => builder
-            .WithOrigins("http://localhost:5173") // Add your frontend origin here
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()); // Add AllowCredentials if you need to send cookies or other credentials
+    options.AddPolicy("AllowReactApp",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:5173")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod()
+                   .AllowCredentials();
+        }); // Add AllowCredentials if you need to send cookies or other credentials
 });
 
 // Configure authorization
@@ -69,34 +83,6 @@ builder.Services.AddAuthorization(options =>
         ));
 });
 
-/*builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MedicaLinkAPI", Version = "v1" });
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please enter a valid token",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer"
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-});*/
-
 builder.Services.AddControllers();
 
 var app = builder.Build();
@@ -112,12 +98,10 @@ using (var scope = app.Services.CreateScope())
     seeder.Seed();
 }
 
-app.UseHttpsRedirection();
-
 app.UseRouting();
 
 // Use CORS middleware
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication(); // This must come before UseAuthorization
 app.UseAuthorization();
@@ -127,4 +111,4 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-app.Run();
+app.Run("http://*:5001");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240618153554_refinedRelationships")]
-    partial class refinedRelationships
+    [Migration("20240630161554_initial_create")]
+    partial class initial_create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,35 @@ namespace API.Migrations
                     b.HasIndex("HospitalId");
 
                     b.ToTable("Admins");
+                });
+
+            modelBuilder.Entity("API.Models.Doctor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AdminId")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("Doctors");
                 });
 
             modelBuilder.Entity("API.Models.Hospital", b =>
@@ -150,8 +179,16 @@ namespace API.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("ProfileImage")
+                        .HasColumnType("longtext");
+
                     b.Property<int>("RegisteredBy")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("RegisteredDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValue(new DateTime(2024, 6, 30, 21, 45, 53, 819, DateTimeKind.Local).AddTicks(3948));
 
                     b.Property<float>("Weight")
                         .HasColumnType("float");
@@ -243,6 +280,17 @@ namespace API.Migrations
                         .IsRequired();
 
                     b.Navigation("Hospital");
+                });
+
+            modelBuilder.Entity("API.Models.Doctor", b =>
+                {
+                    b.HasOne("API.Models.Admin", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
                 });
 
             modelBuilder.Entity("API.Models.MedicalRecord", b =>

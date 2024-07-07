@@ -95,6 +95,9 @@ namespace API.Migrations
                     b.Property<string>("Branch")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("LogoImage")
+                        .HasColumnType("longtext");
+
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
@@ -184,8 +187,8 @@ namespace API.Migrations
 
                     b.Property<DateTime>("RegisteredDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime(6)")
-                        .HasDefaultValue(new DateTime(2024, 6, 26, 14, 45, 38, 91, DateTimeKind.Local).AddTicks(6135));
+                        .HasColumnType("datetime")
+                        .HasDefaultValue(new DateTime(2024, 7, 7, 10, 34, 55, 322, DateTimeKind.Local).AddTicks(269));
 
                     b.Property<float>("Weight")
                         .HasColumnType("float");

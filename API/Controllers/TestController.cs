@@ -18,16 +18,16 @@ namespace API.Controllers
         }
 
         [HttpGet("admin")] // Route only for authenticated admins
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]
         public IActionResult Index()
         {
-            var patients = _context.Patients;
+            var patients = _context.Patients.ToList();
 
             return Ok(patients);
         }
 
         [HttpGet("user")] // Route only for patients
-        [Authorize(Policy = "PatientOnly")]
+        //[Authorize(Policy = "PatientOnly")]
         public IActionResult Patient() 
         {
             return Ok(new
@@ -37,7 +37,6 @@ namespace API.Controllers
         }
 
         [HttpGet("all")] // Route for all authenticated users
-        [Authorize]
         public IActionResult All() 
         {
             return Ok(new

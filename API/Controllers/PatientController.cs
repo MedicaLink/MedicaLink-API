@@ -221,15 +221,15 @@ namespace API.Controllers
             });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{patientId:int}")]
         [Authorize(Policy = "AdminOrDoctor")]
-        public async Task<IActionResult> update(int id,[FromForm] PatientModel model)
+        public async Task<IActionResult> update(int patientId, [FromForm] PatientModel model)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
 
 
-            Patient? patient = await _context.Patients.FindAsync(id);
+            Patient? patient = await _context.Patients.FindAsync(patientId);
 
             if(patient == null)
             {
@@ -258,7 +258,7 @@ namespace API.Controllers
             /*if(model.profileImage != null && model.profileImage.Length > 0)
             {
                 var fileExtension = Path.GetExtension(model.profileImage.FileName);
-                var filePath = $"/uploads/profile/patient-{id}{fileExtension}";
+                var filePath = $"/uploads/profile/patient-{patientId}{fileExtension}";
 
                 using (var stream = System.IO.File.Create(filePath))
                 {
