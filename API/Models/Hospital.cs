@@ -11,6 +11,8 @@ public class Hospital
 
     public string? Branch { get; set; }
 
+    public string? LogoImage { get; set; }
+
     public List<Vaccination> Vaccinations { get; set; } = [];
 
     public List<Admin> Admins { get; set; } = [];

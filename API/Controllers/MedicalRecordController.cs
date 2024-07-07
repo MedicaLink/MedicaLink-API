@@ -51,7 +51,8 @@ namespace API.Controllers
                         Hospital = new
                         {
                             m.Admin.Hospital.Id,
-                            m.Admin.Name,
+                            m.Admin.Hospital.Name,
+                            m.Admin.Hospital.LogoImage
                         }
                     }
                 };
@@ -118,6 +119,7 @@ namespace API.Controllers
                         {
                             m.Admin.Hospital.Id,
                             m.Admin.Hospital.Name,
+                            m.Admin.Hospital.LogoImage
                         }
                     },
                     IsEditable = m.AdminId == uID // Indicates wether the user can edit the record
