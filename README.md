@@ -4,7 +4,7 @@ Medicalink is an online healthcare initiative aimed at providing a centralized p
 
 ## Core Features ##
 
-### Digital Medical Records and E - Vaccination Cards
-### Centralized Healthcare Information
-### Self Entered Medical Records
-### Instant Updates
+### Digital Medical Records and E - Vaccination Cards ###
+### Centralized Healthcare Information ###
+### Self Entered Medical Records ###
+### Instant Updates ###
