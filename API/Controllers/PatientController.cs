@@ -42,6 +42,14 @@ namespace API.Controllers
                 .ThenInclude(a => a.Hospital)
                 .SingleOrDefault( p => p.Id == patientId);
 
+            if (p == null) 
+            {
+                return BadRequest(new
+                {
+                    message = "Patient doesn't exist"
+                });
+            }
+
             var result = new
             {
                 p.Id, p.Name,

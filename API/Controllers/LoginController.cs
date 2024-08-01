@@ -48,7 +48,19 @@ namespace API.Controllers
             userRoles.Add(admin != null ? "Doctor" : "User");
 
             var userRole = userRoles[0];
-            var userId = admin != null ? admin.Id : patient.Id;
+            int userId; string? name;
+
+            if (admin != null) 
+            {
+                userId = admin.Id;
+                name = admin.Name;
+            }
+            else
+            {
+                userId = patient.Id;
+                name = patient.Name;
+            }
+            
 
             if (userRoles[0] == "Doctor" && admin.Type == AdminType.SuperAdmin) // If the user is an Admin check if he/she is a doctor
             {
@@ -63,6 +75,7 @@ namespace API.Controllers
                 token = new JwtSecurityTokenHandler().WriteToken(JWTToken),
                 expiration = JWTToken.ValidTo,
                 userId,
+                name,
                 userName = loginModel.UserName,
                 role = userRole,
                 allRoles = userRoles

@@ -23,6 +23,8 @@ public class DatabaseSeeder
     {
         if(!_context.Hospitals.Any())
         {
+            var images = new string[] { "h1.jpg", "h2.png", "h3.webp", "h4.webp", "h5.webp", "h6.jpg", "h7.jpg", "h8.jpg", "h9.jpg", "h10.jpg" };
+
             var faker = new Faker<Hospital>()
                 .RuleFor(h => h.Name, f => f.Name.FullName())
                 .RuleFor(h => h.Address, f => f.Address.FullAddress())
@@ -32,8 +34,7 @@ public class DatabaseSeeder
             var hospitals = faker.Generate(10);
             hospitals.ForEach(async h =>
             {
-                string randomLogo = await GetRandomImage(200, 200);
-                h.LogoImage = randomLogo;
+                h.LogoImage = $"/public/hospitals/{images[hospitals.IndexOf(h)]}";
             });
 
             _context.Hospitals.AddRange(hospitals);
@@ -81,7 +82,7 @@ public class DatabaseSeeder
         {
             var admins = _context.Admins.ToList();
             var referenceNumbers = new HashSet<string>(); // Keeps track of added reference numbers
-            //var images = new string[] { "1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg", "6.jpg", "7.jpg" };
+            var images = new string[] { "p1.jpg", "p2.jpg", "p3.jpg", "p4.jpg", "p5.jpg", "p6.jpg", "p7.jpg", "p8.jpg", "p9.jpg", "p10.webp" };
 
             var faker = new Faker<Patient>()
                 .RuleFor(p => p.Nic, f =>
@@ -101,14 +102,13 @@ public class DatabaseSeeder
                 .RuleFor(p => p.Weight, f => f.Random.Float(15, 100))
                 .RuleFor(p => p.Gender, f => f.PickRandom<Gender>())
                 .RuleFor(p => p.ContactNumber, f => f.Person.Phone)
-            /*.RuleFor(p => p.ProfileImage, f => $"/src/assets/img/profie/{f.PickRandom(images)}")*/
                 .RuleFor(p => p.RegisteredBy, f => f.PickRandom(admins).Id)
                 .RuleFor(p => p.Password, f => _passwordHasher.HashPassword(null,"password"));
 
             var patients = faker.Generate(10);
             patients.ForEach(async p =>
             {
-                p.ProfileImage = await GetRandomImage(200, 200);
+                p.ProfileImage = $"/public/profile/{images[patients.IndexOf(p)]}";
             });
 
             _context.Patients.AddRange(patients);
